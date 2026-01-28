@@ -1,0 +1,4 @@
+__pycache__/
+.yumfood_env/
+db.sqlite3
+.env
