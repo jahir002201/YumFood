@@ -53,6 +53,7 @@ class OrderViewSet(ModelViewSet):
     """
     Orders:
     - Users can create orders from carts, view their orders, cancel.
+    
     - Admins can update order status, view all orders.
     """
     http_method_names = ['get', 'post', 'delete', 'patch', 'head', 'options']
