@@ -29,6 +29,10 @@ class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, Gener
 
 
 class CartItemViewSet(ModelViewSet):
+    """
+    Manage items in a cart:
+    - Add, update quantity, remove items.
+    """
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_serializer_class(self):
