@@ -61,6 +61,11 @@ class FoodImageViewSet(ModelViewSet):
         return FoodImage.objects.filter(food_id=self.kwargs.get('food_pk'))
     
 class ReviewViewSet(ModelViewSet):
+    """
+    Food Reviews:
+    - Authenticated users can add/update reviews.
+    - Everyone can read reviews.
+    """
     serializer_class = ReviewSerializer
     permission_classes = [IsReviewAuthorOrReadonly]
 
