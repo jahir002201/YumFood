@@ -50,14 +50,29 @@ class CartItemViewSet(ModelViewSet):
 
 
 class OrderViewSet(ModelViewSet):
+    """
+    Orders:
+    - Users can create orders from carts, view their orders, cancel.
+    - Admins can update order status, view all orders.
+    """
     http_method_names = ['get', 'post', 'delete', 'patch', 'head', 'options']
 
+    @swagger_auto_schema(
+        operation_summary="Cancel an order",
+        operation_description="Authenticated users can cancel their own orders, admin can cancel any order",
+        responses={200: "Order canceled successfully"}
+    )
     @action(detail=True, methods=['POST'])
     def cancel(self, request, pk=None):
         order = self.get_object()
         OrderService.cancel_order(order=order, user=request.user)
         return Response({'status': 'Order canceled'})
 
+    @swagger_auto_schema(
+        operation_summary="Update Order Status",
+        operation_description="Admin only: Update the status of an order",
+        request_body=UpdateOrderSerializer
+    )
     @action(detail=True, methods=['PATCH'])
     def update_status(self, request, pk=None):
         order = self.get_object()
