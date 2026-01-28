@@ -84,7 +84,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'yumfood.wsgi.application'
+WSGI_APPLICATION = 'yumfood.wsgi.app'
 
 INTERNAL_IPS = [
     # ...
