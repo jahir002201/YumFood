@@ -9,6 +9,8 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 class CategoryViewSet(ModelViewSet):
     """
@@ -21,6 +23,11 @@ class CategoryViewSet(ModelViewSet):
     serializer_class = CategorySerializer
 
 class FoodViewSet(ModelViewSet):
+    """
+    Food CRUD operations:
+    - Admin can create, update, delete food items.
+    - Users can view, filter, search, and order food items.
+    """
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = DefaultPagination
     serializer_class = FoodSerializer
@@ -30,6 +37,11 @@ class FoodViewSet(ModelViewSet):
     ordering_fields = ['price','updated_at']
     def get_queryset(self):
         return Food.objects.prefetch_related('images').all()
+    
+    @swagger_auto_schema(
+        operation_summary="List Special Food Items",
+        operation_description="Returns all food items marked as specials with discounts"
+    )
     @action(detail=False)
     def specials(self, request):
         specials = Food.objects.filter(is_special=True)
