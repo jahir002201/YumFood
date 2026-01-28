@@ -6,9 +6,15 @@ from rest_framework.response import Response
 from order.models import Cart, CartItem, Order
 from order.serializers import CartSerializer, CartItemSerializer, AddCartItemSerializer, UpdateCartItemSerializer, OrderSerializer, CreateOrderSerializer, UpdateOrderSerializer, EmptySerializer
 from order.services import OrderService
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
 class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet):
+    """
+    Manage shopping carts:
+    - Authenticated users can create, view, delete their cart.
+    """
     serializer_class = CartSerializer
     permission_classes = [IsAuthenticated]
 
