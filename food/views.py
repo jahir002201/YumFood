@@ -49,6 +49,10 @@ class FoodViewSet(ModelViewSet):
         return Response(serializer.data)
     
 class FoodImageViewSet(ModelViewSet):
+    """
+    Upload and list food images.
+    - Admin only for creation, everyone can read.
+    """
     serializer_class = FoodImageSerializer
     permission_classes = [IsAdminOrReadOnly]
     def perform_create(self, serializer):
