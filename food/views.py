@@ -11,6 +11,11 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 class CategoryViewSet(ModelViewSet):
+    """
+    Category CRUD operations for Food categories.
+    - Admin can create, update, delete categories.
+    - Everyone can list and view categories.
+    """
     permission_classes = [IsAdminOrReadOnly]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
