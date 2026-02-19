@@ -2,7 +2,7 @@ from rest_framework import serializers
 from order.models import Cart, CartItem, Order, OrderItem
 from food.models import Food
 from order.services import OrderService
-
+from users.serializers import UserSerializer
 
 class EmptySerializer(serializers.Serializer):
     pass
@@ -114,6 +114,7 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = Order
