@@ -10,6 +10,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from drf_yasg.utils import swagger_auto_schema
+from django.db.models import Count
 from drf_yasg import openapi
 
 class CategoryViewSet(ModelViewSet):
@@ -19,7 +20,7 @@ class CategoryViewSet(ModelViewSet):
     - Everyone can list and view categories.
     """
     permission_classes = [IsAdminOrReadOnly]
-    queryset = Category.objects.all()
+    queryset = Category.objects.annotate(food_count=Count('foods')).all()
     serializer_class = CategorySerializer
 
 class FoodViewSet(ModelViewSet):
