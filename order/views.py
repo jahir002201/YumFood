@@ -15,7 +15,7 @@ from rest_framework import status
 from django.http import HttpResponseRedirect
 
 
-class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet):
+class CartViewSet( RetrieveModelMixin, DestroyModelMixin, GenericViewSet):
     """
     Manage shopping carts:
     - Authenticated users can create, view, delete their cart.
@@ -23,15 +23,20 @@ class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, Gener
     serializer_class = CartSerializer
     permission_classes = [IsAuthenticated]
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
     def get_queryset(self):
         if getattr(self, 'swagger_fake_view', False):
             return Cart.objects.none()
-
         return Cart.objects.prefetch_related('items__food').filter(user=self.request.user)
 
+    def create(self, request, *args, **kwargs):
+        existing_cart = Cart.objects.filter(user=request.user).first()
+        if existing_cart:
+            serializer = self.get_serializer(existing_cart)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        cart = Cart.objects.create(user=request.user)
+        serializer = self.get_serializer(cart)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class CartItemViewSet(ModelViewSet):
     """
