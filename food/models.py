@@ -39,7 +39,5 @@ class Review(models.Model):
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    class Meta:
-        unique_together = ['food', 'user']
     def __str__(self):
         return f"Review by {self.user.first_name} on {self.food.name}"
