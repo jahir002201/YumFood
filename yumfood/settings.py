@@ -90,6 +90,7 @@ WSGI_APPLICATION = 'yumfood.wsgi.app'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "https://yumfood-client.vercel.app",
 ]
 
 INTERNAL_IPS = [
