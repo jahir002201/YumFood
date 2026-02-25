@@ -151,30 +151,28 @@ def initiate_payment(request):
         'issandbox': True
     }
     sslcz = SSLCOMMERZ(settings)
-    post_body = {
-        'total_amount': amount,
-        'currency': "BDT",
-        'tran_id': str(payment.id),  # Use Payment ID
-        'success_url': f"{main_settings.BACKEND_URL}/api/v1/payment/success/",
-        'fail_url': f"{main_settings.BACKEND_URL}/api/v1/payment/fail/",
-        'cancel_url': f"{main_settings.BACKEND_URL}/api/v1/payment/cancel/",
-        'emi_option': 0,
-        'cus_name': f"{user.first_name} {user.last_name}",
-        'cus_email': user.email,
-        'cus_phone': user.phone_number,
-        'cus_add1': user.address,
-        'cus_city': "Dhaka",
-        'cus_country': "Bangladesh",
-        'shipping_method': "NO",
-        'multi_card_name': "",
-        'num_of_item': num_items,
-        'product_name': "E-commerce Foods",
-        'product_category': "General",
-        'product_profile': "general",
-    }
+    post_body = {}
+    post_body['total_amount'] = amount
+    post_body['currency'] = "BDT"
+    post_body['tran_id'] = str(payment.id)
+    post_body['success_url'] = f"{main_settings.BACKEND_URL}/api/v1/payment/success/"
+    post_body['fail_url'] = f"{main_settings.BACKEND_URL}/api/v1/payment/fail/"
+    post_body['cancel_url'] = f"{main_settings.BACKEND_URL}/api/v1/payment/cancel/"
+    post_body['emi_option'] = 0
+    post_body['cus_name'] = f"{user.first_name} {user.last_name}"
+    post_body['cus_email'] = user.email
+    post_body['cus_phone'] = user.phone_number
+    post_body['cus_add1'] = user.address
+    post_body['cus_city'] = "Dhaka"
+    post_body['cus_country'] = "Bangladesh"
+    post_body['shipping_method'] = "NO"
+    post_body['multi_card_name'] = ""
+    post_body['num_of_item'] = num_items
+    post_body['product_name'] = "E-commerce Foods"
+    post_body['product_category'] = "General"
+    post_body['product_profile'] = "general"
 
     response = sslcz.createSession(post_body)
-
     if response.get("status") == 'SUCCESS':
         return Response({"payment_url": response['GatewayPageURL']})
     else:
