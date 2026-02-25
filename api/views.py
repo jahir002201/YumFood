@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from food.models import Food, Review
-from order.models import Order
+from order.models import Order, OrderItem
 from users.models import User
 
 @api_view(['GET'])
