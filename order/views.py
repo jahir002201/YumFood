@@ -28,6 +28,7 @@ class CartViewSet( RetrieveModelMixin, DestroyModelMixin, GenericViewSet):
             return Cart.objects.none()
         return Cart.objects.prefetch_related('items__food').filter(user=self.request.user)
 
+    # add to cart
     def create(self, request, *args, **kwargs):
         existing_cart = Cart.objects.filter(user=request.user).first()
         if existing_cart:
