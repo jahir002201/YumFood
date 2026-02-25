@@ -3,6 +3,7 @@ from order.models import Cart, CartItem, Order, OrderItem
 from food.models import Food
 from order.services import OrderService
 from users.serializers import UserSerializer
+from order.models import Payment
 
 class EmptySerializer(serializers.Serializer):
     pass
@@ -119,3 +120,11 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['id', 'user', 'status', 'total_price', 'created_at', 'items']
+
+class PaymentSerializer(serializers.ModelSerializer):
+    order_id = serializers.UUIDField(source='order.id', read_only=True)
+    user_email = serializers.EmailField(source='user.email', read_only=True)
+
+    class Meta:
+        model = Payment
+        fields = ['id', 'user_email', 'order_id', 'amount', 'status', 'transaction_id', 'created_at']

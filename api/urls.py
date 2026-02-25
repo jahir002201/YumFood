@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework_nested import routers
 from food.views import CategoryViewSet, FoodViewSet, FoodImageViewSet, ReviewViewSet
-from order.views import CartViewSet, CartItemViewSet, OrderViewSet, initiate_payment, payment_success, payment_fail, payment_cancel, HasOrderedFood
+from order.views import CartViewSet, CartItemViewSet, OrderViewSet, initiate_payment, payment_success, payment_fail, payment_cancel, HasOrderedFood, PaymentViewSet
 from api.views import dashboard_stats
 
 router = routers.DefaultRouter()
@@ -9,6 +9,7 @@ router.register('categories', CategoryViewSet, basename='category')
 router.register('foods', FoodViewSet, basename='food')
 router.register('carts', CartViewSet, basename='cart')
 router.register('orders', OrderViewSet, basename='order')
+router.register('payments', PaymentViewSet, basename='payment')
 
 food_router = routers.NestedDefaultRouter(router, 'foods', lookup='food')
 food_router.register('images', FoodImageViewSet, basename='food-image')
