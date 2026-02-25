@@ -1,7 +1,7 @@
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyModelMixin
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from order.models import Cart, CartItem, Order, OrderItem
 from order.serializers import CartSerializer, CartItemSerializer, AddCartItemSerializer, UpdateCartItemSerializer, OrderSerializer, CreateOrderSerializer, UpdateOrderSerializer, EmptySerializer
@@ -128,6 +128,7 @@ class OrderViewSet(ModelViewSet):
         return Order.objects.prefetch_related('items__food').filter(user=self.request.user)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def initiate_payment(request):
     user = request.user
     amount = request.data.get("amount")
