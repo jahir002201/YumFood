@@ -136,81 +136,68 @@ def initiate_payment(request):
 
     order = Order.objects.get(id=order_id)
 
-    # Create Payment record as PENDING
-    from order.models import Payment
-    payment = Payment.objects.create(
-        user=user,
-        order=order,
-        amount=amount,
-        status=Payment.PENDING
-    )
-
-    settings = {
+    # SSLCOMMERZ Settings
+    sslcz = SSLCOMMERZ({
         'store_id': main_settings.SSLCOMMERZ_STORE_ID,
         'store_pass': main_settings.SSLCOMMERZ_STORE_PASS,
-        'issandbox': True
+        'issandbox': True  # Sandbox mode
+    })
+
+    post_body = {
+        "total_amount": amount,
+        "currency": "BDT",
+        "tran_id": f"txn_{order_id}",
+        "success_url": f"{main_settings.BACKEND_URL}/api/v1/payment/success/",
+        "fail_url": f"{main_settings.BACKEND_URL}/api/v1/payment/fail/",
+        "cancel_url": f"{main_settings.BACKEND_URL}/api/v1/payment/cancel/",
+        "emi_option": 0,
+        "cus_name": f"{user.first_name} {user.last_name}",
+        "cus_email": user.email,
+        "cus_phone": user.phone_number,
+        "cus_add1": user.address,
+        "cus_city": "Dhaka",
+        "cus_country": "Bangladesh",
+        "shipping_method": "NO",
+        "multi_card_name": "",
+        "num_of_item": num_items,
+        "product_name": "E-commerce Products",
+        "product_category": "General",
+        "product_profile": "general"
     }
-    sslcz = SSLCOMMERZ(settings)
-    post_body = {}
-    post_body['total_amount'] = amount
-    post_body['currency'] = "BDT"
-    post_body['tran_id'] = str(payment.id)
-    post_body['success_url'] = f"{main_settings.BACKEND_URL}/api/v1/payment/success/"
-    post_body['fail_url'] = f"{main_settings.BACKEND_URL}/api/v1/payment/fail/"
-    post_body['cancel_url'] = f"{main_settings.BACKEND_URL}/api/v1/payment/cancel/"
-    post_body['emi_option'] = 0
-    post_body['cus_name'] = f"{user.first_name} {user.last_name}"
-    post_body['cus_email'] = user.email
-    post_body['cus_phone'] = user.phone_number
-    post_body['cus_add1'] = user.address
-    post_body['cus_city'] = "Dhaka"
-    post_body['cus_country'] = "Bangladesh"
-    post_body['shipping_method'] = "NO"
-    post_body['multi_card_name'] = ""
-    post_body['num_of_item'] = num_items
-    post_body['product_name'] = "E-commerce Foods"
-    post_body['product_category'] = "General"
-    post_body['product_profile'] = "general"
 
     response = sslcz.createSession(post_body)
+
     if response.get("status") == 'SUCCESS':
         return Response({"payment_url": response['GatewayPageURL']})
     else:
-        payment.status = Payment.FAILED
-        payment.save()
-        return Response({"error": "Payment initiation failed"}, status=400)
+        return Response({"error": "Payment initiation failed"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
 def payment_success(request):
-    payment_id = request.data.get("tran_id")
-    payment = Payment.objects.get(id=payment_id)
-    payment.status = Payment.SUCCESS
-    payment.transaction_id = request.data.get("bank_tran_id")
-    payment.save()
-
-    order = payment.order
+    # Get order_id from tran_id
+    order_id = request.data.get("tran_id").split('_')[1]
+    order = Order.objects.get(id=order_id)
     order.status = "Ready To Ship"
     order.save()
-
     return HttpResponseRedirect(f"{main_settings.FRONTEND_URL}/dashboard/orders/")
 
 
 @api_view(['POST'])
 def payment_fail(request):
-    payment_id = request.data.get("tran_id")
-    payment = Payment.objects.get(id=payment_id)
-    payment.status = Payment.FAILED
-    payment.save()
+    order_id = request.data.get("tran_id").split('_')[1]
+    order = Order.objects.get(id=order_id)
+    order.status = "Not Paid"
+    order.save()
     return HttpResponseRedirect(f"{main_settings.FRONTEND_URL}/dashboard/orders/")
 
 
 @api_view(['POST'])
 def payment_cancel(request):
-    payment_id = request.data.get("tran_id")
-    payment = Payment.objects.get(id=payment_id)
-    payment.status = Payment.FAILED
-    payment.save()
+    order_id = request.data.get("tran_id").split('_')[1]
+    order = Order.objects.get(id=order_id)
+    order.status = "Canceled"
+    order.save()
     return HttpResponseRedirect(f"{main_settings.FRONTEND_URL}/dashboard/orders/")
 
 class PaymentViewSet(ReadOnlyModelViewSet):
