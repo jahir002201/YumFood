@@ -134,48 +134,42 @@ def initiate_payment(request):
     order_id = request.data.get("orderId")
     num_items = request.data.get("numItems")
 
-    order = Order.objects.get(id=order_id)
-
-    # SSLCOMMERZ Settings
-    sslcz = SSLCOMMERZ({
-        'store_id': main_settings.SSLCOMMERZ_STORE_ID,
-        'store_pass': main_settings.SSLCOMMERZ_STORE_PASS,
-        'issandbox': True  # Sandbox mode
-    })
-
-    post_body = {
-        "total_amount": amount,
-        "currency": "BDT",
-        "tran_id": f"txn_{order_id}",
-        "success_url": f"{main_settings.BACKEND_URL}/api/v1/payment/success/",
-        "fail_url": f"{main_settings.BACKEND_URL}/api/v1/payment/fail/",
-        "cancel_url": f"{main_settings.BACKEND_URL}/api/v1/payment/cancel/",
-        "emi_option": 0,
-        "cus_name": f"{user.first_name} {user.last_name}",
-        "cus_email": user.email,
-        "cus_phone": user.phone_number,
-        "cus_add1": user.address,
-        "cus_city": "Dhaka",
-        "cus_country": "Bangladesh",
-        "shipping_method": "NO",
-        "multi_card_name": "",
-        "num_of_item": num_items,
-        "product_name": "E-commerce Products",
-        "product_category": "General",
-        "product_profile": "general"
+    settings = {
+    'store_id': main_settings.SSLCOMMERZ_STORE_ID,
+    'store_pass': main_settings.SSLCOMMERZ_STORE_PASS,
+    'issandbox': True
     }
+    sslcz = SSLCOMMERZ(settings)
+    post_body = {}
+    post_body['total_amount'] = amount
+    post_body['currency'] = "BDT"
+    post_body['tran_id'] = f"txn_{order_id}"
+    post_body['success_url'] = f"{main_settings.BACKEND_URL}/api/v1/payment/success/"
+    post_body['fail_url'] = f"{main_settings.BACKEND_URL}/api/v1/payment/fail/"
+    post_body['cancel_url'] = f"{main_settings.BACKEND_URL}/api/v1/payment/cancel/"
+    post_body['emi_option'] = 0
+    post_body['cus_name'] = f"{user.first_name} {user.last_name}"
+    post_body['cus_email'] = user.email
+    post_body['cus_phone'] = user.phone_number
+    post_body['cus_add1'] = user.address
+    post_body['cus_city'] = "Dhaka"
+    post_body['cus_country'] = "Bangladesh"
+    post_body['shipping_method'] = "NO"
+    post_body['multi_card_name'] = ""
+    post_body['num_of_item'] = num_items
+    post_body['product_name'] = "E-commerce Products"
+    post_body['product_category'] = "General"
+    post_body['product_profile'] = "general"
 
     response = sslcz.createSession(post_body)
 
     if response.get("status") == 'SUCCESS':
         return Response({"payment_url": response['GatewayPageURL']})
-    else:
-        return Response({"error": "Payment initiation failed"}, status=status.HTTP_400_BAD_REQUEST)
-
+    return Response({"error": "Payment initiation failed"}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def payment_success(request):
-    # Get order_id from tran_id
+    print("Inside success")
     order_id = request.data.get("tran_id").split('_')[1]
     order = Order.objects.get(id=order_id)
     order.status = "Ready To Ship"
@@ -184,20 +178,13 @@ def payment_success(request):
 
 
 @api_view(['POST'])
-def payment_fail(request):
-    order_id = request.data.get("tran_id").split('_')[1]
-    order = Order.objects.get(id=order_id)
-    order.status = "Not Paid"
-    order.save()
+def payment_cancel(request):
     return HttpResponseRedirect(f"{main_settings.FRONTEND_URL}/dashboard/orders/")
 
 
 @api_view(['POST'])
-def payment_cancel(request):
-    order_id = request.data.get("tran_id").split('_')[1]
-    order = Order.objects.get(id=order_id)
-    order.status = "Canceled"
-    order.save()
+def payment_fail(request):
+    print("Inside fail")
     return HttpResponseRedirect(f"{main_settings.FRONTEND_URL}/dashboard/orders/")
 
 class PaymentViewSet(ReadOnlyModelViewSet):
